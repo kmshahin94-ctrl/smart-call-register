@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#0d6b5c">
+	<title>কল হিসাব | স্মার্ট কল রেজিস্টার</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+	<style>
+		:root { --ink:#17343a; --muted:#6b7c80; --teal:#0d6b5c; --mint:#dff4ed; --line:#dce8e5; --paper:#fff; --bg:#f4f8f6; --coral:#e86c55; --gold:#d99830; }
+		* { box-sizing:border-box; }
+		body { margin:0; color:var(--ink); background:var(--bg); font-family:'Hind Siliguri', sans-serif; }
+		body:before { content:""; display:block; height:7px; background:linear-gradient(90deg,var(--teal),#33a48b,var(--gold)); }
+		.wrap { max-width:1180px; margin:auto; padding:28px 20px 50px; }
+		.topbar { display:flex; justify-content:space-between; align-items:flex-end; gap:18px; margin-bottom:25px; }
+		.eyebrow { color:var(--teal); font:800 12px Manrope,sans-serif; letter-spacing:1.5px; text-transform:uppercase; }
+		h1 { margin:5px 0 3px; font-size:clamp(28px,4vw,42px); line-height:1.1; letter-spacing:-.5px; }
+		.intro { margin:0; color:var(--muted); font-size:16px; }
+		.today { color:var(--teal); background:var(--mint); border:1px solid #bce5d9; border-radius:8px; padding:9px 13px; font-weight:600; white-space:nowrap; }
+		.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+		.stat { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:15px 17px; box-shadow:0 5px 18px rgba(24,68,62,.05); }
+		.stat small { color:var(--muted); font-weight:600; display:block; }
+		.stat strong { display:block; color:var(--teal); font:800 27px Manrope,sans-serif; margin-top:4px; }
+		.layout { display:grid; grid-template-columns:340px 1fr; align-items:start; gap:18px; }
+		.panel { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px; box-shadow:0 7px 24px rgba(24,68,62,.06); }
+		.panel h2 { margin:0 0 15px; font-size:20px; }
+		.panel h2 span { color:var(--teal); }
+		.field { margin-bottom:13px; }
+		label { display:block; color:#3b5559; font-size:14px; font-weight:600; margin-bottom:5px; }
+		input, select, textarea { width:100%; border:1px solid #cbdcd8; border-radius:7px; background:#fbfdfc; color:var(--ink); font:inherit; font-size:15px; padding:10px 11px; outline:none; transition:border .2s,box-shadow .2s; }
+		input:focus, select:focus, textarea:focus { border-color:var(--teal); box-shadow:0 0 0 3px #dff4ed; }
+		textarea { resize:vertical; min-height:76px; }
+		.two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+		.actions { display:flex; gap:9px; margin-top:17px; }
+		button { border:0; border-radius:7px; cursor:pointer; font:600 15px 'Hind Siliguri',sans-serif; padding:10px 14px; transition:transform .15s,opacity .15s; }
+		button:hover { transform:translateY(-1px); } button:active { transform:translateY(0); }
+		.primary { color:#fff; background:var(--teal); flex:1; } .secondary { color:var(--teal); background:var(--mint); }
+		.toolbar { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px; }
+		.toolbar h2 { margin:0; }
+		.search { max-width:245px; }
+		.empty { color:var(--muted); text-align:center; padding:42px 12px; border:1px dashed #cbdcd8; border-radius:8px; }
+		.empty strong { display:block; color:var(--ink); font-size:17px; margin-bottom:4px; }
+		.call-list { display:grid; gap:10px; }
+		.call-item { display:grid; grid-template-columns:1fr auto; gap:14px; border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:8px; padding:14px 15px; background:#fff; }
+		.call-item.overdue { border-left-color:var(--coral); } .call-item.today-item { border-left-color:var(--gold); }
+		.person { display:flex; gap:10px; align-items:flex-start; }
+		.avatar { display:grid; place-items:center; width:38px; height:38px; flex:none; color:var(--teal); background:var(--mint); border-radius:50%; font-weight:700; }
+		.person h3 { margin:0; font-size:18px; line-height:1.3; } .phone { color:var(--ink); font-size:15px; font-weight:700; letter-spacing:.2px; }
+		.meta { display:flex; flex-wrap:wrap; gap:6px 13px; color:var(--muted); font-size:13px; margin-top:8px; }
+		.meta b { color:var(--ink); font-weight:600; }
+		.note { color:#52676a; font-size:14px; margin:7px 0 0; white-space:pre-wrap; }
+		.item-actions { display:flex; align-items:flex-start; gap:6px; } .icon-btn { padding:6px 9px; color:var(--teal); background:#edf7f4; font-size:14px; } .delete { color:#c45442; background:#fff0ed; }
+		.badge { display:inline-block; padding:3px 8px; border-radius:20px; font-size:12px; font-weight:600; } .badge.done { color:#28704f; background:#e4f5e8; } .badge.due { color:#996019; background:#fff1d5; } .badge.late { color:#b34a3a; background:#ffe4df; }
+		.status-actions { display:flex; align-items:center; gap:6px; margin-top:10px; color:var(--muted); font-size:13px; }
+		.status-btn { padding:5px 11px; border:1px solid var(--line); color:var(--ink); background:#f7faf9; font-size:13px; }
+		.status-btn.yes.active { color:#fff; background:#2d8a61; border-color:#2d8a61; }
+		.status-btn.no.active { color:#fff; background:var(--coral); border-color:var(--coral); }
+		.status-date { color:var(--muted); font-size:12px; margin-top:5px; display:flex; align-items:center; gap:6px; }
+		.status-date input { width:auto; min-width:135px; padding:4px 7px; font-size:12px; }
+		.flash { color:#fff; background:var(--ink); border-radius:7px; padding:11px 14px; position:fixed; right:20px; bottom:20px; opacity:0; pointer-events:none; transform:translateY(10px); transition:.25s; } .flash.show { opacity:1; transform:translateY(0); }
+		@media(max-width:800px){ .layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)} }
+		@media(max-width:520px){ .wrap{padding:22px 13px 40px}.topbar{display:block}.today{display:inline-block;margin-top:12px}.toolbar{display:block}.search{max-width:none;margin-top:10px}.call-item{grid-template-columns:1fr}.item-actions{justify-content:flex-end}.two{grid-template-columns:1fr}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:23px} }
+	</style>
+</head>
+<body>
+	<main class="wrap">
+		<header class="topbar">
+			<div><div class="eyebrow">Smart call register</div><h1>কলের হিসাব</h1><p class="intro">কার সঙ্গে কখন কথা হয়েছে, পরের কল কবে করতে হবে সব এক জায়গায়।</p></div>
+			<div class="today" id="todayLabel"></div>
+		</header>
+		<section class="stats" aria-label="কলের সারাংশ">
+			<div class="stat"><small>মোট পরিচিতি</small><strong id="totalCount">০</strong></div>
+			<div class="stat"><small>আজ কল করার তালিকা</small><strong id="todayCount">০</strong></div>
+			<div class="stat"><small>বাকি কল</small><strong id="pendingCount">০</strong></div>
+			<div class="stat"><small>সম্পন্ন কল</small><strong id="doneCount">০</strong></div>
+		</section>
+		<section class="layout">
+			<form class="panel" id="callForm">
+				<h2><span id="formTitle">নতুন</span> কল যোগ করুন</h2>
+				<input type="hidden" id="editId">
+				<div class="field"><label for="name">নাম *</label><input id="name" required placeholder="যেমন: আব্দুল করিম"></div>
+				<div class="field"><label for="phone">ফোন নম্বর *</label><input id="phone" type="tel" required placeholder="01XXXXXXXXX"></div>
+				<div class="field"><label for="callDate">কলের তারিখ *</label><input id="callDate" type="date" required></div>
+				<div class="field"><label for="nextDate">আবার কল করতে হবে</label><input id="nextDate" type="date"></div>
+				<div class="field"><label for="status">অবস্থা</label><select id="status"><option value="pending">কল বাকি</option><option value="done">কল সম্পন্ন</option></select></div>
+				<div class="field"><label for="note">নোট</label><textarea id="note" placeholder="কথোপকথনের গুরুত্বপূর্ণ বিষয়..."></textarea></div>
+				<div class="actions"><button class="primary" type="submit" id="submitBtn">কল সংরক্ষণ করুন</button><button class="secondary" type="button" id="cancelBtn" hidden>বাতিল</button></div>
+			</form>
+			<section class="panel">
+				<div class="toolbar"><h2>কলের তালিকা</h2><input class="search" id="search" type="search" placeholder="নাম বা নম্বর খুঁজুন..." aria-label="কল খুঁজুন"></div>
+				<div id="callList" class="call-list"></div>
+			</section>
+		</section>
+	</main>
+	<div class="flash" id="flash" role="status"></div>
+	<script>
+		const storageKey = 'smart-call-register-v1';
+		let calls = JSON.parse(localStorage.getItem(storageKey) || '[]');
+		const $ = id => document.getElementById(id);
+		const form = $('callForm');
+		const toBn = value => String(value).replace(/\d/g, digit => '০১২৩৪৫৬৭৮৯'[digit]);
+		const dateText = value => value ? new Date(value + 'T00:00:00').toLocaleDateString('bn-BD', { day:'numeric', month:'short', year:'numeric' }) : 'নির্ধারিত নয়';
+		const today = () => new Date().toISOString().slice(0, 10);
+		const save = () => localStorage.setItem(storageKey, JSON.stringify(calls));
+		const showFlash = text => { $('flash').textContent = text; $('flash').classList.add('show'); setTimeout(() => $('flash').classList.remove('show'), 2200); };
+		function render() {
+			const query = $('search').value.trim().toLowerCase();
+			const filtered = calls.filter(item => `${item.name} ${item.phone}`.toLowerCase().includes(query)).sort((a,b) => (a.nextDate || '9999').localeCompare(b.nextDate || '9999'));
+			$('totalCount').textContent = toBn(calls.length);
+			$('todayCount').textContent = toBn(calls.filter(item => item.nextDate === today() && item.status !== 'done').length);
+			$('pendingCount').textContent = toBn(calls.filter(item => item.status !== 'done').length);
+			$('doneCount').textContent = toBn(calls.filter(item => item.status === 'done').length);
+			if (!filtered.length) { $('callList').innerHTML = `<div class="empty"><strong>${calls.length ? 'কোনো মিল পাওয়া যায়নি' : 'এখনও কোনো কল যোগ করা হয়নি'}</strong><span>${calls.length ? 'অন্য নাম বা নম্বর দিয়ে খুঁজুন।' : 'বাম পাশের ফর্মে প্রথম কলটি সংরক্ষণ করুন।'}</span></div>`; return; }
+			$('callList').innerHTML = filtered.map(item => {
+				const late = item.nextDate && item.nextDate < today() && item.status !== 'done';
+				const dueToday = item.nextDate === today() && item.status !== 'done';
+				const badge = item.status === 'done' ? '<span class="badge done">সম্পন্ন</span>' : late ? '<span class="badge late">সময় পেরিয়েছে</span>' : dueToday ? '<span class="badge due">আজ কল করুন</span>' : '<span class="badge due">কল বাকি</span>';
+				return `<article class="call-item ${late ? 'overdue' : dueToday ? 'today-item' : ''}"><div><div class="person"><div class="avatar">${item.name.charAt(0)}</div><div><h3>${escapeHtml(item.name)}</h3><div class="phone">${escapeHtml(item.phone)}</div></div></div><div class="meta"><span>কলের তারিখ: <b>${dateText(item.callDate)}</b></span><span>পরের কল: <b>${dateText(item.nextDate)}</b></span>${badge}</div><div class="status-actions"><span>কল হয়েছে?</span><button class="status-btn yes ${item.status === 'done' ? 'active' : ''}" onclick="setCallStatus('${item.id}', 'done')">হ্যাঁ</button><button class="status-btn no ${item.status !== 'done' ? 'active' : ''}" onclick="setCallStatus('${item.id}', 'pending')">না</button></div><label class="status-date">অবস্থার তারিখ: <input type="date" value="${item.statusDate || ''}" onchange="setStatusDate('${item.id}', this.value)" aria-label="অবস্থার তারিখ"></label>${item.note ? `<p class="note">${escapeHtml(item.note)}</p>` : ''}</div><div class="item-actions"><button class="icon-btn" title="সম্পাদনা" onclick="editCall('${item.id}')">সম্পাদনা</button><button class="icon-btn delete" title="মুছে ফেলুন" onclick="deleteCall('${item.id}')">মুছুন</button></div></article>`;
+			}).join('');
+		}
+		const escapeHtml = text => String(text).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+		form.addEventListener('submit', event => { event.preventDefault(); const id = $('editId').value || Date.now().toString(); const item = { id, name:$('name').value.trim(), phone:$('phone').value.trim(), callDate:$('callDate').value, nextDate:$('nextDate').value, status:$('status').value, statusDate:$('status').value === 'done' ? today() : '', note:$('note').value.trim() }; const index = calls.findIndex(call => call.id === id); index >= 0 ? calls[index] = item : calls.unshift(item); save(); resetForm(); render(); showFlash(index >= 0 ? 'কলের তথ্য আপডেট হয়েছে' : 'কলের তথ্য সংরক্ষণ হয়েছে'); });
+		window.editCall = id => { const item = calls.find(call => call.id === id); if (!item) return; ['name','phone','callDate','nextDate','status','note'].forEach(key => $(key).value = item[key] || ''); $('editId').value = id; $('formTitle').textContent = 'তথ্য সম্পাদনা'; $('submitBtn').textContent = 'পরিবর্তন সংরক্ষণ করুন'; $('cancelBtn').hidden = false; window.scrollTo({ top:0, behavior:'smooth' }); };
+		window.setCallStatus = (id, status) => { const item = calls.find(call => call.id === id); if (!item) return; item.status = status; item.statusDate = today(); save(); render(); showFlash(status === 'done' ? 'কল সম্পন্ন হিসেবে রাখা হয়েছে' : 'কল বাকি হিসেবে রাখা হয়েছে'); };
+		window.setStatusDate = (id, statusDate) => { const item = calls.find(call => call.id === id); if (!item) return; item.statusDate = statusDate; save(); showFlash('অবস্থার তারিখ সংরক্ষণ হয়েছে'); };
+		window.deleteCall = id => { if (!confirm('এই কলের তথ্য মুছে ফেলবেন?')) return; calls = calls.filter(item => item.id !== id); save(); render(); showFlash('কলের তথ্য মুছে ফেলা হয়েছে'); };
+		function resetForm() { form.reset(); $('editId').value = ''; $('formTitle').textContent = 'নতুন'; $('submitBtn').textContent = 'কল সংরক্ষণ করুন'; $('cancelBtn').hidden = true; $('callDate').value = today(); }
+		$('cancelBtn').addEventListener('click', resetForm); $('search').addEventListener('input', render); $('todayLabel').textContent = new Date().toLocaleDateString('bn-BD', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); resetForm(); render();
+	</script>
+</body>
+</html>
