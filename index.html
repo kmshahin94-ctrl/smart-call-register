@@ -19,6 +19,8 @@
 		h1 { margin:5px 0 3px; font-size:clamp(28px,4vw,42px); line-height:1.1; letter-spacing:-.5px; }
 		.intro { margin:0; color:var(--muted); font-size:16px; }
 		.today { color:var(--teal); background:var(--mint); border:1px solid #bce5d9; border-radius:8px; padding:9px 13px; font-weight:600; white-space:nowrap; }
+		.header-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+		.download-btn { color:#fff; background:var(--teal); }
 		.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
 		.stat { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:15px 17px; box-shadow:0 5px 18px rgba(24,68,62,.05); }
 		.stat small { color:var(--muted); font-weight:600; display:block; }
@@ -68,7 +70,7 @@
 	<main class="wrap">
 		<header class="topbar">
 			<div><div class="eyebrow">Smart call register</div><h1>কলের হিসাব</h1><p class="intro">কার সঙ্গে কখন কথা হয়েছে, পরের কল কবে করতে হবে সব এক জায়গায়।</p></div>
-			<div class="today" id="todayLabel"></div>
+			<div class="header-actions"><button class="download-btn" id="downloadBtn" type="button">ডাউনলোড</button><div class="today" id="todayLabel"></div></div>
 		</header>
 		<section class="stats" aria-label="কলের সারাংশ">
 			<div class="stat"><small>মোট পরিচিতি</small><strong id="totalCount">০</strong></div>
@@ -126,6 +128,8 @@
 		window.setCallStatus = (id, status) => { const item = calls.find(call => call.id === id); if (!item) return; item.status = status; item.statusDate = today(); save(); render(); showFlash(status === 'done' ? 'কল সম্পন্ন হিসেবে রাখা হয়েছে' : 'কল বাকি হিসেবে রাখা হয়েছে'); };
 		window.setStatusDate = (id, statusDate) => { const item = calls.find(call => call.id === id); if (!item) return; item.statusDate = statusDate; save(); showFlash('অবস্থার তারিখ সংরক্ষণ হয়েছে'); };
 		window.deleteCall = id => { if (!confirm('এই কলের তথ্য মুছে ফেলবেন?')) return; calls = calls.filter(item => item.id !== id); save(); render(); showFlash('কলের তথ্য মুছে ফেলা হয়েছে'); };
+		const csvCell = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+		$('downloadBtn').addEventListener('click', () => { if (!calls.length) { showFlash('ডাউনলোড করার মতো কোনো তথ্য নেই'); return; } const headers = ['নাম', 'ফোন নম্বর', 'কলের তারিখ', 'আবার কলের তারিখ', 'অবস্থা', 'অবস্থার তারিখ', 'নোট']; const rows = calls.map(item => [item.name, item.phone, item.callDate, item.nextDate, item.status === 'done' ? 'সম্পন্ন' : 'বাকি', item.statusDate, item.note]); const csv = '\ufeff' + [headers, ...rows].map(row => row.map(csvCell).join(',')).join('\n'); const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `কলের-তালিকা-${today()}.csv`; link.click(); URL.revokeObjectURL(link.href); showFlash('কলের তালিকা ডাউনলোড হয়েছে'); });
 		function resetForm() { form.reset(); $('editId').value = ''; $('formTitle').textContent = 'নতুন'; $('submitBtn').textContent = 'কল সংরক্ষণ করুন'; $('cancelBtn').hidden = true; $('callDate').value = today(); }
 		$('cancelBtn').addEventListener('click', resetForm); $('search').addEventListener('input', render); $('todayLabel').textContent = new Date().toLocaleDateString('bn-BD', { weekday:'long', day:'numeric', month:'long', year:'numeric' }); resetForm(); render();
 	</script>
